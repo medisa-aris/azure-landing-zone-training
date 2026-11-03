@@ -371,7 +371,7 @@ def r_table(deck: Deck, s: Slide, header, rows, pill_text=None):
     slide = deck.new()
     S.set_title(slide, s.title)
     if pill_text:
-        S.pill(slide, 10.9, 0.16, 1.8, 0.32, pill_text, S.CYAN, S.NAVY, size=11)
+        badge_pill(slide, pill_text)
     S.content_card(slide)
     n, m = len(rows) + 1, len(header)
     x, y, w = 0.85, 1.7, 11.65
@@ -381,7 +381,7 @@ def r_table(deck: Deck, s: Slide, header, rows, pill_text=None):
     scale = w / sum(widths)
     widths = [c * scale for c in widths]
     avail = 5.0
-    size = 14
+    size = 17
     while size > 10:
         hgt = sum(max(S.est_lines(S.plain(r[c]), widths[c] - 0.2, size) for c in range(m)) * size * 1.25 / 72 + 0.14
                   for r in rows + [header])
@@ -420,7 +420,7 @@ def r_content(deck: Deck, topic: Topic, s: Slide, pill_text=None):
     slide = deck.new()
     S.set_title(slide, s.title)
     if pill_text:
-        S.pill(slide, 10.9, 0.16, 1.8, 0.32, pill_text, S.CYAN, S.NAVY, size=11)
+        badge_pill(slide, pill_text)
     S.content_card(slide)
     has_visual = bool(re.match(r"\[", il) or mslearn_url(il)) or tbl
     if code:
@@ -558,6 +558,11 @@ def terminal_label(lang):
             "text": "Berkas konfigurasi"}.get(lang, lang)
 
 
+def badge_pill(slide, label):
+    w = max(1.8, 0.1 * len(label) + 0.4)
+    S.pill(slide, 12.69 - w, 0.16, w, 0.32, label, S.CYAN, S.NAVY, size=11)
+
+
 def demo_badge(s: Slide):
     m = re.match(r"(Demo D\d+|Lab \w+)", s.title)
     part = re.search(r"\(([^)]+)\)", s.tipe)
@@ -592,7 +597,9 @@ def r_demo_intro(deck: Deck, topic: Topic, s: Slide, steps: list):
         x = 0.97 + i * (cw + gap)
         S.white_card(slide, x, 5.1, cw, 1.2)
         S.oval(slide, x + 0.15, 5.22, 0.38, S.NUM, str(i + 1))
-        short = S.plain(re.split(r"[:→(]", st)[0])[:70]
+        short = S.plain(st)
+        if len(short) > 90:
+            short = short[:88].rsplit(" ", 1)[0] + "…"
         S.text(slide, x + 0.6, 5.12, cw - 0.7, 1.15, short, size=S.fit_size([short], cw - 0.75, 1.1, 14, 10),
                color=S.NAVY, semibold=True, anchor=MSO_ANCHOR.MIDDLE)
     S.notes(slide, base_notes(s, "Urutan demo: " + "; ".join(f"{i+1}. {S.plain(x)}" for i, x in enumerate(steps))))
@@ -601,12 +608,12 @@ def r_demo_intro(deck: Deck, topic: Topic, s: Slide, steps: list):
 def r_steps(deck: Deck, s: Slide, badge: str):
     slide = deck.new()
     S.set_title(slide, s.title)
-    S.pill(slide, 10.9, 0.16, 1.8, 0.32, badge, S.CYAN, S.NAVY, size=11)
+    badge_pill(slide, badge)
     S.content_card(slide)
     items = items_of(s)
     code = s.f("pointers").code
     il, _ = illustration(s)
-    right = bool(il) and not code
+    right = bool(mslearn_url(il) or il.startswith("[Tabel]")) and not code
     lw = 6.6 if right else 11.3
     steps_h = 2.6 if code else 4.0
     n = max(1, len(items))
@@ -638,7 +645,7 @@ def key_message(s: Slide):
 def r_syntax(deck: Deck, s: Slide, badge: str):
     slide = deck.new()
     S.set_title(slide, s.title)
-    S.pill(slide, 10.9, 0.16, 1.8, 0.32, badge, S.CYAN, S.NAVY, size=11)
+    badge_pill(slide, badge)
     code = s.f("pointers").code
     n = notes_text(s)
     show_note = n and len(n) < 260
@@ -667,7 +674,7 @@ def r_syntax(deck: Deck, s: Slide, badge: str):
 def r_result(deck: Deck, s: Slide, badge: str):
     slide = deck.new()
     S.set_title(slide, s.title)
-    S.pill(slide, 10.9, 0.16, 1.8, 0.32, badge, S.CYAN, S.NAVY, size=11)
+    badge_pill(slide, badge)
     items = items_of(s)
     il, _ = illustration(s)
     tbl = table_from_illustration(s)
@@ -692,7 +699,7 @@ def r_fallback(deck: Deck, s: Slide, badge: str):
     """Portal mock-up drawn with shapes, described by the outline."""
     slide = deck.new()
     S.set_title(slide, s.title)
-    S.pill(slide, 10.9, 0.16, 1.8, 0.32, badge, S.CYAN, S.NAVY, size=11)
+    badge_pill(slide, badge)
     il, _ = illustration(s)
     desc = S.plain(re.sub(r"^\[[^\]]+\]\s*", "", il))
     x, y, w, h = 0.64, 1.25, 12.05, 5.65

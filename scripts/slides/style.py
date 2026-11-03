@@ -82,6 +82,8 @@ def humanize_md(text: str) -> str:
 def md_runs(text: str, raw: bool = False):
     """Split '**bold**' and '`code`' into (text, kind) runs; strip other markdown."""
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    if not raw and re.sub(r"`[^`]+`", "", text).count(" → ") >= 2:
+        text = text.replace(" → ", " › ")        # menu path: decide on the whole sentence
     out = []
     for part in re.split(r"(\*\*[^*]+\*\*|`[^`]+`)", text):
         if not part:
@@ -346,7 +348,7 @@ def terminal(slide, x, y, w, h, label, blocks, max_size=16, min_size=10):
             lines.append("")
         lines.extend(blk)
     lines = [l.rstrip() for l in lines] or [" "]
-    size = fit_size(lines, w - 0.3, h - 0.5, max_size=max_size, min_size=min_size, spacing=1.15, gap_pt=0, mono=True)
+    size = fit_size(lines, w - 0.35, h - 0.6, max_size=max_size, min_size=min_size, spacing=1.3, gap_pt=0, mono=True)
     tb = slide.shapes.add_textbox(Inches(x + 0.12), Inches(y + 0.4), Inches(w - 0.24), Inches(h - 0.48))
     tf = tb.text_frame
     tf.word_wrap = True
