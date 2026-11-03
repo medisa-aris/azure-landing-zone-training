@@ -325,7 +325,7 @@ def r_objectives(deck: Deck, topic: Topic, s: Slide):
     S.content_card(slide, 0.49, 1.62, 12.35, 5.33)
     n = max(1, len(items))
     row = min(1.2, 4.9 / n)
-    size = S.fit_size([S.plain(i) for i in items], 7.3, row * n - 0.1, max_size=18, min_size=13, gap_pt=row * 72 * 0.3)
+    size = S.fit_each([S.plain(i) for i in items], 7.3, row - 0.08, max_size=18, min_size=13)
     for i, it in enumerate(items):
         y = 1.95 + i * row
         S.oval(slide, 1.0, y + 0.06, 0.32, S.NUM, str(i + 1), size=13)
@@ -473,7 +473,7 @@ def draw_smartart(slide, kind, items, s: Slide):
     if kind == "process":
         gap = 0.45
         cw = (11.65 - gap * (n - 1)) / n
-        size = S.fit_size([S.plain(i) for i in items], cw - 0.3, 2.6, 17, 11)
+        size = S.fit_each([S.plain(i) for i in items], cw - 0.35, 2.15, 18, 11)
         for i, it in enumerate(items):
             x = 0.85 + i * (cw + gap)
             S.white_card(slide, x, 2.35, cw, 3.3)
@@ -489,7 +489,7 @@ def draw_smartart(slide, kind, items, s: Slide):
         import math
         rx, ry = 4.35, 1.85
         cw, ch = 3.1, 0.95
-        size = S.fit_size([S.plain(i) for i in items], cw - 0.3, ch - 0.1, 15, 10)
+        size = S.fit_each([S.plain(i) for i in items], cw - 0.3, ch - 0.12, 15, 10)
         pos = []
         for i in range(n):
             a = -math.pi / 2 + 2 * math.pi * i / n
@@ -511,7 +511,7 @@ def draw_smartart(slide, kind, items, s: Slide):
     bh = min(1.0, (4.95 - gap * (n - 1)) / n)
     top = 1.75 + (4.95 - (bh * n + gap * (n - 1))) / 2
     pyramid = "pyramid" in s.f("ilustrasi").text.lower()
-    size = S.fit_size([S.plain(i) for i in items], 7.5, bh - 0.1, 18, 11)
+    size = S.fit_each([S.plain(i) for i in items], 7.2, bh - 0.12, 18, 11)
     for i, it in enumerate(items):
         w = (6.0 + 5.65 * (i + 1) / n) if pyramid else 11.65
         x = 0.85 + (11.65 - w) / 2
@@ -529,7 +529,7 @@ def icon_grid(slide, items):
     cw = (11.65 - gap * (cols - 1)) / cols
     ch = min(1.6, (4.95 - gap * (rows - 1)) / rows)
     top = 1.75 + (4.95 - (rows * ch + gap * (rows - 1))) / 2
-    size = S.fit_size([S.plain(i) for i in items], cw - 1.3, ch - 0.2, max_size=18, min_size=12)
+    size = S.fit_each([S.plain(i) for i in items], cw - 1.35, ch - 0.25, max_size=20, min_size=12)
     for i, it in enumerate(items):
         r, c = divmod(i, cols)
         x, y = 0.85 + c * (cw + gap), top + r * (ch + gap)
@@ -611,7 +611,7 @@ def r_steps(deck: Deck, s: Slide, badge: str):
     steps_h = 2.6 if code else 4.0
     n = max(1, len(items))
     row = steps_h / n
-    size = S.fit_size([S.plain(i) for i in items], lw - 0.7, steps_h - 0.1, 17, 11, gap_pt=6)
+    size = S.fit_each([S.plain(i) for i in items], lw - 0.75, row - 0.1, 17, 11)
     for i, it in enumerate(items):
         y = 1.72 + i * row
         S.oval(slide, 0.9, y + 0.05, 0.36, S.NUM, str(i + 1), size=13)
@@ -676,7 +676,7 @@ def r_result(deck: Deck, s: Slide, badge: str):
     S.text(slide, 0.74, 1.22, lw - 0.2, 0.3, "Hasil yang diharapkan", size=10, color="4A4A4A")
     n = max(1, len(items))
     row = 5.1 / n
-    size = S.fit_size([S.plain(i) for i in items], lw - 1.1, 5.0, 17, 11, gap_pt=8)
+    size = S.fit_each([S.plain(i) for i in items], lw - 1.1, row - 0.1, 17, 11)
     for i, it in enumerate(items):
         y = 1.6 + i * row
         S.icon(slide, "check", 0.85, y + 0.05, 0.42)
@@ -747,7 +747,7 @@ def r_quiz(deck: Deck, s: Slide):
         S.icon_oval(slide, "help", 0.9, 1.72, 0.62, S.BLUE)
         S.text(slide, 1.72, 1.62, 10.7, 1.1, q, size=S.fit_size([S.plain(q)], 10.6, 1.05, 22, 15), color=S.NAVY,
                semibold=True, anchor=MSO_ANCHOR.MIDDLE)
-        osz = S.fit_size([S.plain(o) for o in opts], 4.45, 1.5, 17, 12)
+        osz = S.fit_each([S.plain(o) for o in opts], 4.4, 1.45, 17, 12)
         for k, (letter, opt) in enumerate(zip("ABCD", opts)):
             r, c = divmod(k, 2)
             x, y = 0.9 + c * 5.93, 2.95 + r * 2.0
@@ -774,7 +774,7 @@ def r_open_quiz(deck: Deck, s: Slide):
     qs = items_of(s)
     n = max(1, len(qs))
     row = min(1.0, 4.9 / n)
-    size = S.fit_size([S.plain(q) for q in qs], 10.3, row * n, 20, 13)
+    size = S.fit_each([S.plain(q) for q in qs], 9.3, row - 0.08, 20, 12)
     S.icon_oval(slide, "help", 11.2, 1.7, 0.9, S.BLUE)
     for i, q in enumerate(qs):
         y = 1.75 + i * row
@@ -821,7 +821,7 @@ def r_summary(deck: Deck, topic: Topic, s: Slide, next_text: str):
     items = items_of(s)
     n = max(1, len(items))
     row = 4.95 / n
-    size = S.fit_size([S.plain(i) for i in items], 6.9, 4.9, 18, 12, gap_pt=row * 72 * 0.25)
+    size = S.fit_each([S.plain(i) for i in items], 6.95, row - 0.1, 18, 12)
     for i, it in enumerate(items):
         y = 1.7 + i * row
         S.icon(slide, "check", 0.85, y + min(0.35, row / 2 - 0.2), 0.4)

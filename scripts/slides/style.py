@@ -127,6 +127,11 @@ def fit_size(paras, width_in, height_in, max_size=18, min_size=12, spacing=1.18,
     return min_size
 
 
+def fit_each(items, width_in, height_in, max_size=18, min_size=12, **kw):
+    """One shared size for items that each sit in their own box of the given size."""
+    return min((fit_size([i], width_in, height_in, max_size, min_size, **kw) for i in items), default=max_size)
+
+
 # ------------------------------------------------------------------ shape helpers
 def _effect_shadow(blur=214029, dist=43797, color=None, alpha=14880):
     clr = (f'<a:srgbClr val="{color}"><a:alpha val="{alpha}"/></a:srgbClr>' if color
