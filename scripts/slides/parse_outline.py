@@ -130,7 +130,7 @@ def parse(path: Path) -> Day:
             slide.fields[_norm(m.group(1))] = cur
             continue
 
-        if cur is None or not stripped:
+        if cur is None or not stripped or stripped == "---":
             continue
 
         # nested list items

@@ -185,20 +185,22 @@ def r_cover(deck: Deck):
     tree.insert(2, bg._element)
     for ph in slide.placeholders:
         if ph.placeholder_format.idx == 0:
+            ph.left, ph.top, ph.width, ph.height = Inches(0.64), Inches(3.2), Inches(11.8), Inches(0.75)
             ph.text_frame.text = ""
             r = ph.text_frame.paragraphs[0].add_run()
             r.text = "Azure Landing Zone: Design, Operate, and Connect"
-            S._font(r, 36, S.BLACK, semibold=True)
+            S._font(r, 34, S.BLACK, semibold=True)
         elif ph.placeholder_format.idx == 12:
+            ph.left, ph.top, ph.width, ph.height = Inches(0.64), Inches(4.2), Inches(11.8), Inches(0.45)
             ph.text_frame.text = ""
             r = ph.text_frame.paragraphs[0].add_run()
-            r.text = f"Hari {d.number} · {d.title}"
+            r.text = S.humanize(d.title)
             S._font(r, 20, S.NAVY)
     S.pill(slide, 0.64, 2.55, 2.1, 0.42, f"Hari {d.number} dari 5", S.NAVY)
-    S.text(slide, 0.64, 5.05, 10.5, 0.7,
-           "Training 5 hari untuk PT Pertamina (Persero) · 09:00–16:00 WIB · Azure landing zone, hybrid connectivity, dan operasi",
+    S.text(slide, 0.64, 4.95, 10.5, 0.7,
+           "Training 5 hari untuk PT Pertamina (Persero), pukul 09.00–16.00 WIB. Materi: Azure landing zone, hybrid connectivity, dan operasi.",
            size=14, color=S.GRAY)
-    S.notes(slide, f"Azure Landing Zone: Design, Operate, and Connect — Hari {d.number}: {d.title}.\n\n"
+    S.notes(slide, f"Azure Landing Zone: Design, Operate, and Connect. Hari {d.number}: {d.title}.\n\n"
                    f"Tujuan hari ini: {S.plain(d.goal)}\n\nAudiens: {S.plain(d.audience)}")
 
 
@@ -211,7 +213,7 @@ def r_glance(deck: Deck):
     # day pills
     for i in range(1, 6):
         cur = i == d.number
-        p = S.pill(slide, 0.85 + (i - 1) * 2.35, 1.85, 2.2, 0.42, f"Hari {i} · {DAY_SHORT[i]}",
+        p = S.pill(slide, 0.85 + (i - 1) * 2.35, 1.85, 2.2, 0.42, f"Hari {i}: {DAY_SHORT[i]}",
                    S.BLUE if cur else S.WHITE, S.WHITE if cur else S.GRAY, size=11)
         if not cur:
             p.line.color.rgb = S.rgb(S.LINE)
@@ -247,7 +249,7 @@ def r_glance(deck: Deck):
         x = 0.85 + i * (cw + gap)
         S.white_card(slide, x, 3.6, cw, 3.0)
         S.icon(slide, pick_icon(t.title), x + cw / 2 - 0.27, 3.78, 0.55)
-        S.text(slide, x + 0.1, 4.45, cw - 0.2, 0.4, f"{t.id} · {t.time}", size=14 if cw > 2.3 else 12,
+        S.text(slide, x + 0.1, 4.45, cw - 0.2, 0.4, f"Topik {t.id} ({t.time})", size=14 if cw > 2.3 else 12,
                color=S.BLUE, semibold=True, align=PP_ALIGN.CENTER)
         size = S.fit_size([t.title], cw - 0.25, 1.55, max_size=16, min_size=11)
         S.text(slide, x + 0.1, 4.9, cw - 0.2, 1.6, t.title, size=size, semibold=True, align=PP_ALIGN.CENTER)
@@ -264,7 +266,7 @@ def r_divider(deck: Deck, topic: Topic, index: int, total: int, s: Slide | None)
     size = S.fit_size([title], 11.5, 1.2, max_size=40, min_size=28)
     S.text(slide, 0.9, 3.55, 11.53, 1.2, title, size=size, semibold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     aud = S.plain(s.f("pointers").text) if s else ""
-    sub = f"Hari {deck.day.number} · Topik {topic.id} · {topic.time}"
+    sub = f"Hari {deck.day.number}, Topik {topic.id}, pukul {topic.time} WIB"
     S.text(slide, 0.9, 4.85, 11.53, 0.45, sub, size=18, color=S.NAVY, align=PP_ALIGN.CENTER)
     labs = re.findall(r"(Lab \w+|Workshop[^+]*)", topic.title)
     if labs:
@@ -329,7 +331,7 @@ def r_objectives(deck: Deck, topic: Topic, s: Slide):
         S.oval(slide, 1.0, y + 0.06, 0.32, S.NUM, str(i + 1), size=13)
         S.text(slide, 1.5, y, 7.35, row, it, size=size)
     S.icon_oval(slide, "target", 9.55, 2.35, 2.5, S.BLUE, ratio=0.52)
-    S.text(slide, 9.1, 5.05, 3.4, 1.0, f"{n} tujuan · diuji lagi di kuis akhir sesi", size=14, color=S.NAVY,
+    S.text(slide, 9.1, 5.05, 3.4, 1.0, f"{n} tujuan, diuji lagi di kuis akhir sesi", size=14, color=S.NAVY,
            align=PP_ALIGN.CENTER)
     S.notes(slide, base_notes(s))
 
@@ -355,7 +357,7 @@ def illustration_panel(slide, s: Slide, x, y, w, h):
         desc = re.sub(r"https://learn\.microsoft\.com/\S+", "", desc).strip(" ·")
     S.box(slide, x, y, w, h, fill=S.TINT, radius=0.06)
     S.icon_oval(slide, "image" if url else "sitemap", x + 0.25, y + 0.25, 0.6, S.BLUE)
-    head = "Diagram Microsoft Learn" if url else f"Ilustrasi · {kind}"
+    head = "Diagram Microsoft Learn" if url else f"Ilustrasi: {kind}"
     S.text(slide, x + 1.0, y + 0.25, w - 1.2, 0.6, head, size=16, color=S.NAVY, semibold=True, anchor=MSO_ANCHOR.MIDDLE)
     body = [desc] if desc else []
     body += [S.plain(i) for i in il_items[:6]]
@@ -429,6 +431,10 @@ def r_content(deck: Deck, topic: Topic, s: Slide, pill_text=None):
         lang = code[0][0]
         S.terminal(slide, 0.85 + lw + (0.3 if lw else 0), 1.75, 11.65 - lw - (0.3 if lw else 0), 4.95,
                    terminal_label(lang), code)
+    elif items and smartart_kind(il):
+        draw_smartart(slide, smartart_kind(il), items, s)
+    elif items and not mslearn_url(il) and not tbl:
+        icon_grid(slide, items)
     elif has_visual and items:
         size = S.fit_size([S.plain(i) for i in items], 6.4, 5.0, max_size=18, min_size=12, gap_pt=10)
         S.text(slide, 0.85, 1.66, 6.6, 5.0, items, size=size, bullets=True, gap=10)
@@ -442,6 +448,77 @@ def r_content(deck: Deck, topic: Topic, s: Slide, pill_text=None):
         illustration_panel(slide, s, 0.85, 1.75, 11.65, 4.9)
     S.notes(slide, base_notes(s))
     return slide
+
+
+def smartart_kind(il: str):
+    m = re.match(r"\[SmartArt:\s*([^\]]+)\]", il)
+    if not m:
+        return None
+    k = m.group(1).lower()
+    if "process" in k or "chevron" in k:
+        return "process"
+    if "cycle" in k or "radial" in k:
+        return "radial"
+    if "matrix" in k:
+        return "matrix"
+    return "stack"            # pyramid, stacked list, vertical box list, hierarchy, org chart
+
+
+def draw_smartart(slide, kind, items, s: Slide):
+    n = len(items)
+    if kind == "process" and n > 6:
+        kind = "stack"
+    if kind == "matrix" or (kind == "radial" and n > 6):
+        return icon_grid(slide, items)
+    if kind == "process":
+        gap = 0.45
+        cw = (11.65 - gap * (n - 1)) / n
+        size = S.fit_size([S.plain(i) for i in items], cw - 0.3, 2.6, 17, 11)
+        for i, it in enumerate(items):
+            x = 0.85 + i * (cw + gap)
+            S.white_card(slide, x, 2.35, cw, 3.3)
+            S.oval(slide, x + cw / 2 - 0.3, 2.55, 0.6, S.BLUE if i % 2 == 0 else S.NAVY, str(i + 1), size=18)
+            S.text(slide, x + 0.15, 3.3, cw - 0.3, 2.25, it, size=size, align=PP_ALIGN.CENTER)
+            if i < n - 1:
+                S.line(slide, x + cw + 0.05, 4.0, x + cw + gap - 0.05, 4.0, color=S.BLUE, width=2.25, arrow=True)
+        return
+    if kind == "radial":
+        cx, cy = 6.67, 4.25
+        q = re.search(r"“([^”]+)”", s.f("ilustrasi").text)
+        center = q.group(1) if q else S.plain(re.sub(r"\(.*?\)", "", s.title))
+        import math
+        rx, ry = 4.35, 1.85
+        cw, ch = 3.1, 0.95
+        size = S.fit_size([S.plain(i) for i in items], cw - 0.3, ch - 0.1, 15, 10)
+        pos = []
+        for i in range(n):
+            a = -math.pi / 2 + 2 * math.pi * i / n
+            pos.append((cx + rx * math.cos(a), cy + ry * math.sin(a)))
+        for (px, py) in pos:
+            S.line(slide, cx, cy, px, py, color="9DB8DD", width=1.5)
+        S.oval(slide, cx - 1.0, cy - 1.0, 2.0, S.NAVY)
+        S.text(slide, cx - 0.9, cy - 0.6, 1.8, 1.2, center, size=S.fit_size([center], 1.7, 1.1, 16, 10),
+               color=S.WHITE, semibold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        for (px, py), it in zip(pos, items):
+            x = min(max(px - cw / 2, 0.75), 12.6 - cw)
+            y = min(max(py - ch / 2, 1.6), 6.7 - ch)
+            S.white_card(slide, x, y, cw, ch)
+            S.text(slide, x + 0.12, y + 0.04, cw - 0.24, ch - 0.08, it, size=size, align=PP_ALIGN.CENTER,
+                   anchor=MSO_ANCHOR.MIDDLE)
+        return
+    # stack / pyramid
+    gap = 0.12
+    bh = min(1.0, (4.95 - gap * (n - 1)) / n)
+    top = 1.75 + (4.95 - (bh * n + gap * (n - 1))) / 2
+    pyramid = "pyramid" in s.f("ilustrasi").text.lower()
+    size = S.fit_size([S.plain(i) for i in items], 7.5, bh - 0.1, 18, 11)
+    for i, it in enumerate(items):
+        w = (6.0 + 5.65 * (i + 1) / n) if pyramid else 11.65
+        x = 0.85 + (11.65 - w) / 2
+        y = top + i * (bh + gap)
+        S.box(slide, x, y, w, bh, fill=S.BLUE if i % 2 == 0 else S.NAVY, radius=0.18)
+        S.icon(slide, pick_icon(it), x + 0.25, y + bh / 2 - 0.22, 0.44, white=True)
+        S.text(slide, x + 0.85, y, w - 1.1, bh, it, size=size, color=S.WHITE, anchor=MSO_ANCHOR.MIDDLE)
 
 
 def icon_grid(slide, items):
@@ -476,16 +553,16 @@ def small_table(slide, header, rows, x, y, w):
 
 
 def terminal_label(lang):
-    return {"bash": "Sintaks · Azure CLI — Cloud Shell (Bash)", "powershell": "Sintaks · PowerShell",
-            "kusto": "Sintaks · KQL — Log Analytics", "json": "Sintaks · JSON", "bicep": "Sintaks · Bicep",
-            "text": "Konfigurasi"}.get(lang, f"Sintaks · {lang}")
+    return {"bash": "Azure CLI di Cloud Shell (Bash)", "powershell": "PowerShell",
+            "kusto": "KQL di Log Analytics", "json": "JSON", "bicep": "Bicep",
+            "text": "Berkas konfigurasi"}.get(lang, lang)
 
 
 def demo_badge(s: Slide):
     m = re.match(r"(Demo D\d+|Lab \w+)", s.title)
     part = re.search(r"\(([^)]+)\)", s.tipe)
     tag = m.group(1).upper() if m else "DEMO"
-    return f"{tag} · {part.group(1).split()[0].capitalize()}" if part else tag
+    return f"{tag}: {part.group(1).split()[0].capitalize()}" if part else tag
 
 
 def r_demo_intro(deck: Deck, topic: Topic, s: Slide, steps: list):
@@ -494,7 +571,7 @@ def r_demo_intro(deck: Deck, topic: Topic, s: Slide, steps: list):
     S.icon_oval(slide, "terminal", 6.02, 0.75, 1.3, S.NAVY, ratio=0.5)
     m = re.match(r"(Demo D\d+)[:\s]*(.*)", s.title)
     tag, title = (m.group(1), m.group(2)) if m else ("Demo", s.title)
-    S.pill(slide, 4.67, 2.2, 4.0, 0.42, f"{tag.upper()} · WALKTHROUGH", S.CYAN, S.NAVY)
+    S.pill(slide, 4.67, 2.2, 4.0, 0.42, f"{tag.upper()}: WALKTHROUGH", S.CYAN, S.NAVY)
     size = S.fit_size([title], 11.7, 0.9, max_size=34, min_size=24)
     S.text(slide, 0.8, 2.72, 11.73, 0.9, title, size=size, semibold=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     pts = items_of(s)
@@ -665,7 +742,7 @@ def r_quiz(deck: Deck, s: Slide):
     total = len(parsed)
     for i, (q, opts) in enumerate(parsed, 1):
         slide = deck.new()
-        S.set_title(slide, f"Kuis · Pertanyaan {i} dari {total}")
+        S.set_title(slide, f"Kuis: Pertanyaan {i} dari {total}")
         S.content_card(slide)
         S.icon_oval(slide, "help", 0.9, 1.72, 0.62, S.BLUE)
         S.text(slide, 1.72, 1.62, 10.7, 1.1, q, size=S.fit_size([S.plain(q)], 10.6, 1.05, 22, 15), color=S.NAVY,
@@ -681,7 +758,7 @@ def r_quiz(deck: Deck, s: Slide):
         if a:
             letter, why = a
             opt_txt = opts["ABCD".index(letter)]
-            body = f"Jawaban: {letter} — {S.plain(opt_txt)}"
+            body = f"Jawaban: {letter} ({S.plain(opt_txt)})"
             if why:
                 body += f"\n\nAlasan: {why}"
             body += "\n\nTips: beri waktu ±30 detik, minta peserta memilih A/B/C/D, lalu ungkapkan jawaban."
@@ -715,9 +792,9 @@ def r_lab(deck: Deck, topic: Topic, s: Slide):
     labm = re.search(r"Lab (\w+)", s.title)
     rows = []
     if labm:
-        rows.append(("file", "Panduan", f"Lab Guide · Lab {labm.group(1)}"))
+        rows.append(("file", "Panduan", f"Lab Guide, Lab {labm.group(1)}"))
     else:
-        rows.append(("file", "Format", "Workshop tim · Design Pack"))
+        rows.append(("file", "Format", "Workshop tim untuk mengisi Design Pack"))
     crit = next((i for i in items if "kriteria sukses" in i.lower()), "")
     rows.append(("target", "Kriteria sukses", re.sub(r"\*\*Kriteria sukses:\*\*\s*", "", crit) or "Lihat panel"))
     rows.append(("clock", "Durasi", s.waktu or "–"))

@@ -56,7 +56,30 @@ def rgb(h):
 
 
 # ------------------------------------------------------------------ inline markdown
-def md_runs(text: str):
+def humanize(t: str) -> str:
+    """Natural Indonesian punctuation for prose (never applied to code)."""
+    t = re.sub(r"\b([01]\d|2[0-3]):([0-5]\d)\b", r"\1.\2", t)          # 09:00 -> 09.00 (PUEBI)
+    t = t.replace(" · ", ", ")
+    t = re.sub(r"\s+[—–]\s+", ", ", t)
+    arrows = t.count(" → ")
+    if arrows >= 2:
+        t = t.replace(" → ", " › ")
+    elif arrows == 1:
+        t = t.replace(" → ", ", lalu " if ":" in t else ": ")
+    t = re.sub(r"(?<=\w) = (?=\w)", " adalah ", t)
+    t = re.sub(r"(?<=\w) \+ (?=\w)", " dan ", t)
+    t = re.sub(r"[ \t]{2,}", " ", t)
+    t = re.sub(r"[ \t]+([,.;:])", r"\1", t)
+    t = re.sub(r",\s*,", ",", t)
+    return t
+
+
+def humanize_md(text: str) -> str:
+    """Humanize prose parts of a markdown string, keep `code` parts untouched, return plain text."""
+    return "".join(t if k == "c" else humanize(t) for t, k in md_runs(text, raw=True))
+
+
+def md_runs(text: str, raw: bool = False):
     """Split '**bold**' and '`code`' into (text, kind) runs; strip other markdown."""
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
     out = []
@@ -69,11 +92,17 @@ def md_runs(text: str):
             out.append((part[1:-1], "c"))
         else:
             out.append((part.replace("*", ""), "n"))
+    if not raw:
+        out = [(t if k == "c" else humanize(t), k) for t, k in out]
     return out
 
 
 def plain(text: str) -> str:
     return "".join(t for t, _ in md_runs(text))
+
+
+def raw_plain(text: str) -> str:
+    return "".join(t for t, _ in md_runs(text, raw=True))
 
 
 # ------------------------------------------------------------------ text fitting
@@ -179,7 +208,7 @@ def pill(slide, x, y, w, h, text, fill, color=WHITE, size=14):
     p = tf.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
     r = p.add_run()
-    r.text = text
+    r.text = humanize(text)
     _font(r, size, color, semibold=True)
     return shp
 
@@ -327,4 +356,4 @@ def terminal(slide, x, y, w, h, label, blocks, max_size=16, min_size=10):
 
 
 def notes(slide, body):
-    slide.notes_slide.notes_text_frame.text = body.strip()
+    slide.notes_slide.notes_text_frame.text = humanize_md(body.strip())
