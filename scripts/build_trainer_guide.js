@@ -197,8 +197,8 @@ c.push(BREAK(), H1("3. Persiapan trainer"),
   table([1.4, 3], [
     ["Akun / role", "Pengaturan"],
     ["Peserta (semua)", "Reader di management group root training. Akun cloud-only di training tenant, **bukan** akun Pertamina."],
-    ["Tim N – Build", "Contributor di subscription/resource group spoke tim N. Network Contributor di resource group connectivity sebagai role **eligible** (PIM), hanya untuk jam lab."],
-    ["Team lead tim N", "Hybrid Identity Administrator sebagai role **eligible** (PIM), untuk Lab 3C."],
+    ["Tim N – Build", "Contributor di rg-spoke-teamN dan rg-arc-teamN. Role **eligible** (PIM, approval manager): Network Contributor di rg-conn (Lab 3B, 4A) dan Role Based Access Control Administrator di rg-spoke-teamN (Lab 3A)."],
+    ["Team lead tim N", "Conditional Access Administrator dan Hybrid Identity Administrator sebagai role **eligible** (PIM), untuk Lab 3A dan 3C."],
     ["Lingkungan on-prem tim N", "Akun Domain Admin `teamN\\labadmin` di DC01; akun lokal di APP01; SSH ke RTR01. Kredensial dibagikan per tim di kartu tertutup."],
     ["Break-glass trainer", "2 akun Global Administrator cloud-only, dikecualikan dari Conditional Access, password di amplop tertutup."],
   ]),
@@ -443,7 +443,7 @@ c.push(...session({
   keyMessages: ["Compliance adalah proses berkelanjutan: temukan, tentukan pemilik, perbaiki atau buat exemption."],
   lab: {
     id: "2A", title: "Governance in practice",
-    build: "Menulis custom policy (contoh: wajib tag `CostCenter` pada resource group) dalam JSON, assign dengan effect Audit di subscription tim, lalu jalankan remediation untuk policy Modify.",
+    build: "Menulis custom policy (contoh: wajib tag `CostCenter` pada resource group) dalam JSON, assign dengan effect Audit ke rg-spoke-teamN, lalu paksa evaluasi dengan `trigger-scan`.",
     operate: "Membuka Policy > Compliance, mencari resource non-compliant, membaca alasan, dan menelusuri effective role assignment di Access control (IAM).",
     notes: [
       "**Penting:** evaluasi policy setelah assignment baru bisa memakan waktu hingga sekitar 30 menit. Buat resource non-compliant pada T-3 supaya dashboard sudah berisi data saat lab.",
@@ -566,7 +566,7 @@ c.push(...session({
   keyMessages: ["Lab ini diakhiri dengan aktivasi Hybrid Identity Administrator oleh team lead; tanpa itu Lab 3C tidak bisa berjalan."],
   lab: {
     id: "3A", title: "Identity and privileged access",
-    build: "Assign role ke grup tim, buat role eligible di PIM, buat Conditional Access policy dalam mode **report-only**, lalu team lead mengaktifkan Hybrid Identity Administrator.",
+    build: "Engineer mengaktifkan role Role Based Access Control Administrator lewat PIM (disetujui manager), memberi Reader ke grup auditor tim, lalu team lead mengaktifkan Conditional Access Administrator + Hybrid Identity Administrator dan membuat Conditional Access policy mode **report-only**.",
     operate: "Membaca sign-in logs, menyetujui PIM request dari engineer tim (manager sebagai approver).",
     notes: [
       "Conditional Access **harus report-only**. Policy aktif yang salah bisa mengunci semua peserta.",
@@ -657,7 +657,7 @@ c.push(...session({
     build: "Membuat peering spoke–hub (dua arah, use remote gateway aktif di sisi spoke), membuat route table dengan 0.0.0.0/0 ke IP Azure Firewall, memverifikasi dengan Next hop.",
     operate: "Melihat topology di Network Watcher, membaca firewall logs di Log Analytics dengan query yang sudah disediakan.",
     notes: [
-      "Peering sisi hub dikerjakan trainer (tim tidak punya akses ke hub kecuali melalui PIM). Siapkan script untuk sisi hub.",
+      "Tim membuat kedua sisi peering sendiri setelah mengaktifkan Network Contributor di rg-conn melalui PIM. Siapkan script cadangan untuk sisi hub jika PIM bermasalah.",
       "**Use remote gateways** di sisi spoke harus aktif supaya besok spoke bisa menjangkau on-prem melalui VPN gateway hub.",
     ],
     issues: [

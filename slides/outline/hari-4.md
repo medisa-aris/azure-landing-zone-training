@@ -515,7 +515,7 @@
 - **Waktu:** –
 - **Pointers (code block):**
   ```powershell
-  # Di APP01 (PowerShell sebagai Administrator) – alternatif dari script portal
+  # Di APP01 (PowerShell sebagai Administrator) – alternatif jika agent sudah terpasang; cara utama: script dari portal
   azcmagent connect --resource-group rg-arc-team1 --tenant-id <tenant-id> `
     --subscription-id <sub-id> --location indonesiacentral
   azcmagent show
@@ -524,10 +524,10 @@
   1..4 | ForEach-Object { Start-Job { $end=(Get-Date).AddMinutes(5); while((Get-Date) -lt $end){} } }
   ```
   ```kusto
-  // Query alert (butuh DCR yang mengumpulkan performance counter)
-  Perf
-  | where Computer startswith "APP01" and CounterName == "% Processor Time"
-  | summarize RataRata = avg(CounterValue) by bin(TimeGenerated, 5m)
+  // Query alert (data VM insights melalui DCR)
+  InsightsMetrics
+  | where Computer startswith "APP01" and Namespace == "Processor" and Name == "UtilizationPercentage"
+  | summarize CPU = avg(Val) by bin(TimeGenerated, 5m)
   ```
 - **Ilustrasi:** Latar gelap.
 - **Speaker notes:** `azcmagent connect` tanpa service principal akan meminta login device code. Hentikan job beban CPU setelah alert terpicu: `Get-Job | Stop-Job`.

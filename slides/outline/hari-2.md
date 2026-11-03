@@ -250,7 +250,7 @@
 - **Waktu:** 75 menit (10:45–12:00)
 - **Pointers:**
   - **Operate (semua):** buka Policy > Compliance, temukan resource non-compliant, baca alasannya, telusuri role di Access control (IAM), catat: % compliance, pemilik, keputusan perbaikan
-  - **Build (TECH):** buat custom policy “resource group wajib tag CostCenter” (Audit), assign ke subscription tim, jalankan remediation untuk policy Modify
+  - **Build (TECH):** buat custom policy “resource group wajib tag CostCenter” (Audit), assign ke rg-spoke-teamN, paksa evaluasi dengan `trigger-scan`
   - **Kriteria sukses:** laporan compliance tim terisi; custom policy muncul di daftar assignment
 - **Ilustrasi:** [Shapes] Alur: “Compliance dashboard” → “Resource non-compliant” → “Pemilik (IAM)” → “Keputusan: perbaiki / exemption”.
 - **Speaker notes:** Resource non-compliant sudah disiapkan pada T-3 karena evaluasi assignment baru butuh waktu. Untuk memaksa evaluasi: `az policy state trigger-scan --resource-group <rg>`.

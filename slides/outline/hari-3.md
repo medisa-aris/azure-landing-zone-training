@@ -196,7 +196,7 @@
 - **Tipe:** Lab
 - **Waktu:** 35 menit (10:45–11:20)
 - **Pointers:**
-  - **Build (TECH):** assign role ke grup tim; buat role eligible di PIM; buat Conditional Access policy **report-only**; team lead mengaktifkan **Hybrid Identity Administrator**
+  - **Build (TECH):** aktifkan role Role Based Access Control Administrator via PIM (approval manager); beri Reader ke grup auditor tim; team lead mengaktifkan Conditional Access Administrator + **Hybrid Identity Administrator** dan membuat Conditional Access policy **report-only**
   - **Operate (EXEC/ANL):** baca sign-in logs; manager menyetujui PIM request engineer tim
   - **Kriteria sukses:** semua team lead aktif sebagai Hybrid Identity Administrator pada menit ke-30
 - **Ilustrasi:** [Shapes] Alur: Engineer → “Request role” → Manager “Approve” → Role aktif (centang) → panah ke “Lab 3C”.
@@ -472,7 +472,7 @@
   - **Operate (EXEC/ANL):** buka topology di Network Watcher; baca firewall logs dengan query yang disediakan
   - **Kriteria sukses:** peering **Connected**; next hop ke internet = VirtualAppliance
 - **Ilustrasi:** [Shapes] Hub di tengah (biru tua, ikon firewall + gateway), spoke tim di kanan. Panah peering dua arah; panah oranye dari spoke ke firewall berlabel “UDR 0.0.0.0/0”. Tanda “Besok: VPN ke on-prem” di sisi kiri hub.
-- **Speaker notes:** Peering sisi hub dikerjakan trainer dengan script (tim tidak punya akses hub). *Use remote gateways* wajib agar besok spoke bisa menjangkau on-prem.
+- **Speaker notes:** Tim membuat kedua sisi peering setelah mengaktifkan Network Contributor di rg-conn melalui PIM; trainer menyiapkan script cadangan. *Use remote gateways* wajib agar besok spoke bisa menjangkau on-prem.
 
 #### Slide 3.2-19 · Lab 3B: Sintaks (Build)
 - **Tipe:** Lab (sintaks)
