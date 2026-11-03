@@ -1,0 +1,10 @@
+upn_prefix,display_name,team,role
+user01,Peserta 01 (Lead Tim 1),1,lead
+user02,Peserta 02,1,engineer
+user03,Peserta 03,1,engineer
+user04,Peserta 04,1,manager
+user05,Peserta 05,1,analyst
+user06,Peserta 06 (Lead Tim 2),2,lead
+user07,Peserta 07,2,engineer
+user08,Peserta 08,2,manager
+user09,Peserta 09,2,analyst

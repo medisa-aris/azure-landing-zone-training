@@ -1,2 +1,6 @@
 node_modules/
 *.pdf
+labs/infra/config/lab.env
+labs/infra/config/participants.csv
+labs/infra/config/*-outputs.json
+labs/infra/logs/

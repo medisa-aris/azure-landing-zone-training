@@ -1,0 +1,6 @@
+{
+  "hubSubscriptionId": "00000000-0000-0000-0000-000000000000",
+  "hubResourceGroup": "rg-conn",
+  "hubVnetName": "vnet-hub",
+  "firewallPrivateIp": "10.0.1.4"
+}

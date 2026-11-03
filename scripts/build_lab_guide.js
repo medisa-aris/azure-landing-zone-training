@@ -210,6 +210,7 @@ c.push(BREAK(), H1("2. Informasi lingkungan lab"),
     ["Role **eligible** (PIM) – engineer", "Network Contributor di rg-conn (Lab 3B, 4A); Role Based Access Control Administrator di rg-spoke-teamN (Lab 3A)."],
     ["Role **eligible** (PIM) – team lead", "Conditional Access Administrator dan Hybrid Identity Administrator (Lab 3A, 3C)."],
     ["Approver PIM", "Manager tim (Platform Owner)."],
+    ["Manager dan analyst", "Global Reader (aktif) di Entra ID – untuk membaca sign-in logs dan provisioning logs (Lab 3A, 3C)."],
     ["`teamN\\labadmin`", "Domain Admin di DC01; admin lokal di APP01 dan RTR01. Password di kartu tim."],
     ["User AD untuk sinkronisasi", "OU Sync-Users, contoh Budi Santoso, Siti Rahma. Password di kartu tim."],
   ]),
@@ -449,7 +450,7 @@ c.push(...lab({
     "Direktur keuangan Pertamina bertanya: “Berapa biaya cloud per unit bisnis bulan ini, dan berapa yang tidak jelas pemiliknya?” Kepala SOC bertanya: “Seberapa aman lingkungan cloud kita, dan apa tiga perbaikan terpenting?”",
     "Tim Anda harus menjawab keduanya dan menetapkan **siapa** yang bertanggung jawab atas setiap aktivitas platform.",
   ],
-  prereq: ["Subscription demo yang sudah berjalan beberapa hari (disiapkan trainer) untuk data biaya.", "Template RACI."],
+  prereq: ["Subscription demo yang sudah berjalan beberapa hari (disiapkan trainer) untuk data biaya.", "Template RACI.", "(Build, Bagian C) Role **Role Based Access Control Administrator** di rg-spoke-teamN diaktifkan lewat PIM dengan approval manager – diperlukan agar remediation task dapat memberi role ke managed identity. Cara aktivasi sama dengan Lab 3A Langkah A1–A2 (pengenalan awal PIM)."],
   parts: [
     { title: "Bagian A – Biaya (Operate)", prefix: "A", steps: [
       { title: "Analisis biaya per tag", items: [
@@ -508,6 +509,7 @@ c.push(...lab({
         click("Tab **Remediation**: centang **Create a remediation task**. Managed identity: **System assigned**, lokasi **Indonesia Central**. Klik tombol biru **[Review + create]** lalu **[Create]**."),
         result("Notifikasi “Creating policy assignment… succeeded”. Di **Policy › Remediation** muncul remediation task berstatus **Evaluating/In progress**, lalu **Complete**."),
         why("Effect **Modify** mengubah resource agar patuh. Untuk resource yang **sudah ada**, perubahan hanya terjadi lewat **remediation task**, yang berjalan dengan managed identity milik assignment – karena itu identitas harus dibuat."),
+        warn("Role **Contributor** tidak boleh membuat role assignment. Jika muncul error *does not have authorization to perform action Microsoft.Authorization/roleAssignments/write*, aktifkan dulu **Role Based Access Control Administrator** melalui PIM (lihat prasyarat), sign in ulang, lalu ulangi assignment."),
         warn("Pastikan resource group `rg-spoke-teamN` sudah memiliki tag CostCenter (tambahkan lewat **Tags** di halaman resource group bila belum). Policy ini menyalin tag dari resource group ke resource di dalamnya."),
       ]},
     ]},

@@ -1,0 +1,90 @@
+# Lab 5A: pull request -> what-if (plan); merge ke main -> deploy.
+# Hanya file teams/<tim>/*.bicepparam yang berubah yang diproses.
+# Secrets (GitHub > Settings > Secrets and variables > Actions):
+#   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (subscription landing zone)
+# Identitas workload (federated credential/OIDC) butuh: Contributor di rg-spoke-teamN
+# dan Network Contributor di rg-conn (subscription Connectivity).
+name: platform-spokes
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['teams/**', 'modules/**', 'config/**']
+  push:
+    branches: [main]
+    paths: ['teams/**', 'modules/**', 'config/**']
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{ steps.diff.outputs.files }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          HEAD: ${{ github.sha }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then BASE="$PR_BASE"; else BASE="$PUSH_BEFORE"; fi
+          FILES=$(git diff --name-only --diff-filter=AM "$BASE" "$HEAD" -- 'teams/*/*.bicepparam' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "Berkas yang berubah: $FILES"
+          echo "files=$FILES" >> "$GITHUB_OUTPUT"
+
+  whatif:
+    if: github.event_name == 'pull_request' && needs.detect.outputs.files != '[]'
+    needs: detect
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJson(needs.detect.outputs.files) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: What-if
+        env:
+          PARAM_FILE: ${{ matrix.file }}
+        run: |
+          TEAM=$(echo "$PARAM_FILE" | cut -d/ -f2)
+          echo "## What-if untuk $PARAM_FILE (rg-spoke-$TEAM)" >> "$GITHUB_STEP_SUMMARY"
+          az deployment group what-if -g "rg-spoke-$TEAM" --parameters "$PARAM_FILE" \
+            --name "lab5a-$TEAM-${{ github.run_id }}" --no-pretty-print \
+            | jq -r '.changes[] | "\(.changeType)\t\(.resourceId | split("/") | .[-1])"' \
+            | tee -a "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    if: github.event_name == 'push' && needs.detect.outputs.files != '[]'
+    needs: detect
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJson(needs.detect.outputs.files) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy
+        env:
+          PARAM_FILE: ${{ matrix.file }}
+        run: |
+          TEAM=$(echo "$PARAM_FILE" | cut -d/ -f2)
+          az deployment group create -g "rg-spoke-$TEAM" --parameters "$PARAM_FILE" \
+            --name "lab5a-$TEAM-${{ github.run_id }}" -o table
