@@ -394,6 +394,9 @@ def r_table(deck: Deck, s: Slide, header, rows, pill_text=None):
     tblPr.set("bandRow", "0")
     for c in range(m):
         tbl.columns[c].width = Inches(widths[c])
+    row_h = min(0.75, max(0.4, 4.9 / n))
+    for r in tbl.rows:
+        r.height = Inches(row_h)
     for ri, row in enumerate([header] + rows):
         for ci in range(m):
             cell = tbl.cell(ri, ci)
@@ -401,6 +404,7 @@ def r_table(deck: Deck, s: Slide, header, rows, pill_text=None):
             cell.fill.fore_color.rgb = S.rgb(S.NAVY if ri == 0 else (S.WHITE if ri % 2 else S.RESULT))
             cell.margin_left = cell.margin_right = Inches(0.1)
             cell.margin_top = cell.margin_bottom = Inches(0.05)
+            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
             tf = cell.text_frame
             tf.word_wrap = True
             tf.text = ""
@@ -523,7 +527,8 @@ def draw_smartart(slide, kind, items, s: Slide):
 
 def icon_grid(slide, items):
     n = len(items)
-    cols = 2 if n > 3 else n
+    longest = max(len(S.plain(i)) for i in items)
+    cols = 2 if n > 3 else (1 if longest > 50 else n)
     rows = (n + cols - 1) // cols
     gap = 0.25
     cw = (11.65 - gap * (cols - 1)) / cols
@@ -850,6 +855,7 @@ def r_closing(deck: Deck):
     S.text(slide, 5.12, 2.35, 7.6, 1.2, f"Hari {d.number} selesai!" if d.number < 5 else "Training selesai!",
            size=54, semibold=True, anchor=MSO_ANCHOR.MIDDLE)
     msg = S.plain(d.goal)
+    msg = msg[:1].upper() + msg[1:]
     S.text(slide, 5.24, 3.65, 7.3, 1.8, msg, size=S.fit_size([msg], 7.2, 1.75, 20, 14))
     S.notes(slide, f"Penutup hari {d.number}. Ingatkan jadwal besok dan kumpulkan pertanyaan parking lot.")
 
