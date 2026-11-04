@@ -1,0 +1,78 @@
+#cloud-config
+# RTR01 = perangkat VPN + internet edge data center simulasi.
+# Placeholder __TEAM_SUBNET__ dan __AZURE_SPACE__ diganti oleh template Bicep.
+# Placeholder <HUB_VPN_GATEWAY_PUBLIC_IP> dan <RTR01_PUBLIC_IP> diisi PESERTA di Lab 4A.
+package_update: true
+packages:
+  - strongswan
+  - strongswan-starter
+  - iptables
+
+write_files:
+  - path: /etc/sysctl.d/99-lab-router.conf
+    content: |
+      net.ipv4.ip_forward = 1
+      net.ipv4.conf.all.accept_redirects = 0
+      net.ipv4.conf.all.send_redirects = 0
+
+  - path: /usr/local/sbin/lab-nat.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      # Internet edge on-prem: NAT untuk server tim, KECUALI trafik ke Azure (lewat tunnel IPsec).
+      set -e
+      TEAM_SUBNET="__TEAM_SUBNET__"
+      AZURE_SPACE="__AZURE_SPACE__"
+      iptables -t nat -C POSTROUTING -s "$TEAM_SUBNET" -d "$AZURE_SPACE" -j ACCEPT 2>/dev/null \
+        || iptables -t nat -I POSTROUTING 1 -s "$TEAM_SUBNET" -d "$AZURE_SPACE" -j ACCEPT
+      iptables -t nat -C POSTROUTING -s "$TEAM_SUBNET" -o eth0 -j MASQUERADE 2>/dev/null \
+        || iptables -t nat -A POSTROUTING -s "$TEAM_SUBNET" -o eth0 -j MASQUERADE
+      # Hindari fragmentasi di jalur VPN (MSS clamping)
+      iptables -t mangle -C FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null \
+        || iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+  - path: /etc/systemd/system/lab-nat.service
+    content: |
+      [Unit]
+      Description=Lab NAT rules (internet edge on-prem)
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/sbin/lab-nat.sh
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+
+  - path: /etc/ipsec.conf.lab
+    content: |
+      # Konfigurasi IPsec Lab 4A. Ganti placeholder sesuai Lab Guide.
+      config setup
+          charondebug="ike 1, cfg 1"
+
+      conn azure-hub
+          keyexchange=ikev2
+          type=tunnel
+          authby=secret
+          left=%defaultroute
+          leftid=<RTR01_PUBLIC_IP>
+          leftsubnet=__TEAM_SUBNET__
+          right=<HUB_VPN_GATEWAY_PUBLIC_IP>
+          rightsubnet=__AZURE_SPACE__
+          ike=aes256-sha256-modp2048!
+          esp=aes256-sha256!
+          ikelifetime=28800s
+          lifetime=27000s
+          dpdaction=restart
+          auto=start
+
+runcmd:
+  - sysctl --system
+  - systemctl daemon-reload
+  - systemctl enable --now lab-nat.service
+  - cp /etc/ipsec.conf /etc/ipsec.conf.orig
+  - cp /etc/ipsec.conf.lab /etc/ipsec.conf
+  - systemctl enable strongswan-starter
+  - touch /var/lib/lab-rtr01-ready
